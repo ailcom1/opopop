@@ -324,14 +324,14 @@
 
     <script>
         const firebaseConfig = {
-    apiKey: "AIzaSyBp6q2iITFblRbXAFmlskdaWqfq8NIRfT4",
-    authDomain: "moayad-carpets.firebaseapp.com",
-    databaseURL: "https://moayad-carpets-default-rtdb.firebaseio.com",
-    projectId: "moayad-carpets",
-    storageBucket: "moayad-carpets.appspot.com",
-    messagingSenderId: "657387251960",
-    appId: "1:657387251960:web:0e948c25755c5f023f330d"
-};
+            apiKey: "AIzaSyBp6q2iITFblRbXAFmlskdaWqfq8NIRfT4",
+            authDomain: "moayad-carpets.firebaseapp.com",
+            databaseURL: "https://moayad-carpets-default-rtdb.firebaseio.com",
+            projectId: "moayad-carpets",
+            storageBucket: "moayad-carpets.appspot.com",
+            messagingSenderId: "657387251960",
+            appId: "1:657387251960:web:0e948c25755c5f023f330d"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -364,7 +364,8 @@
                         points: 0, 
                         referralCode: referralCode,
                         totalCounterPoints: 10,
-                        remainingTime: null // إضافة لكود الوقت المتبقي
+                        remainingTime: null, 
+                        lastExitTime: null // إضافة لكود الوقت عند الخروج
                     });
                     
                     localStorage.setItem("userRegistered", "true");
@@ -406,7 +407,19 @@
                 const currentPoints = data.points || 0;
                 totalCounterPoints = data.totalCounterPoints || 10; 
                 document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints}`;
-                countdown = data.remainingTime || 86400; // استرجاع الوقت المتبقي أو البدء من 24 ساعة
+                
+                const lastExitTime = data.lastExitTime || Math.floor(Date.now() / 1000);
+                const currentTime = Math.floor(Date.now() / 1000);
+                
+                // حساب الوقت المنقضي
+                const timeElapsed = currentTime - lastExitTime;
+                countdown = (data.remainingTime || 86400) - timeElapsed; // طرح الوقت المنقضي من الوقت المتبقي
+                
+                // إذا كان الوقت المتبقي أقل من صفر، اجعله صفر
+                if (countdown < 0) {
+                    countdown = 0;
+                }
+                
                 startCountdown();
             }
         }
@@ -423,7 +436,7 @@
                 if (countdown > 0) {
                     countdown--;
                     document.getElementById("dynamicText").innerText = `انتظار ${formatTime(countdown)}`;
-                    await database.ref('users/' + userId).update({ remainingTime: countdown }); // تحديث الوقت المتبقي في قاعدة البيانات
+                    await database.ref('users/' + userId).update({ remainingTime: countdown, lastExitTime: Math.floor(Date.now() / 1000) }); // تحديث الوقت المتبقي ووقت الخروج
                 }
 
                 if (countdown <= 0) {
@@ -592,6 +605,11 @@
                 document.getElementById("authContainer").style.display = "flex";
             }
         }
+
+        window.onbeforeunload = function() {
+            const currentTime = Math.floor(Date.now() / 1000); // الوقت الحالي بالثواني
+            database.ref('users/' + userId).update({ lastExitTime: currentTime });
+        };
     </script>
 </body>
 </html>
