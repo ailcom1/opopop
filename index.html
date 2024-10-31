@@ -150,6 +150,29 @@
             font-size: 18px;
             text-align: center;
         }
+        .status-indicator {
+            position: absolute;
+            width: 220px; /* Width of the status indicator */
+            height: 30px;
+            border-radius: 15px;
+            top: 10px; /* Position it above the circle */
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            opacity: 0.8;
+            transition: background-color 0.3s ease; /* Smooth transition for color change */
+        }
+        .active {
+            background-color: rgba(0, 255, 0, 0.7); /* Green for active */
+        }
+        .inactive {
+            background-color: rgba(255, 0, 0, 0.7); /* Red for inactive */
+        }
         /* شريط أحمر متحرك */
         .outer-circle {
             position: absolute;
@@ -270,7 +293,10 @@
         <div class="counter-circle" id="counterCircle">
             <div class="outer-circle"></div> <!-- الشريط الأحمر المتحرك -->
             <div class="overlay-text" id="dynamicText">انتظار 24:00:00</div>
+            <div id="statusIndicator" class="status-indicator active">فعال</div> <!-- مستطيل الحالة -->
         </div>
+        <input type="text" id="username" placeholder="أدخل اسمك" style="display: none;">
+        <button class="button" id="saveUsernameButton" onclick="saveUsername()" style="display: none;">حفظ الاسم</button>
         <button class="button" id="startButton" onclick="startCountdown()">تشغيل</button>
         <button class="button" onclick="toggleMultiCounter()">مضاعفة العداد</button>
         <button class="button" onclick="toggleTransferPoints()">تحويل النقاط</button>
@@ -280,6 +306,7 @@
     <div class="profile-modal" id="profileModal">
         <h3>البروفايل</h3>
         <div id="emailDisplay" class="profile-info-box">البريد الإلكتروني: غير متاح</div>
+        <div id="usernameDisplay" class="profile-info-box">الاسم: غير متاح</div>
         <div id="referralCodeDisplay" class="profile-info-box">رمز الإحالة: غير متاح</div>
         <button class="close-modal" onclick="toggleProfile()">إغلاق</button>
     </div>
@@ -343,6 +370,7 @@
         let rainInterval;
         let countdown;
         let countdownInterval;
+        let defaultCountdown = 86400; // 24 ساعة
 
         async function authenticate() {
             const email = document.getElementById("email").value;
@@ -365,7 +393,8 @@
                         referralCode: referralCode,
                         totalCounterPoints: 10,
                         remainingTime: null, 
-                        lastExitTime: null // إضافة لكود الوقت عند الخروج
+                        lastExitTime: null, // إضافة لكود الوقت عند الخروج
+                        username: null // إضافة حقل الاسم
                     });
                     
                     localStorage.setItem("userRegistered", "true");
@@ -387,7 +416,10 @@
             document.getElementById("authContainer").style.display = "none";
             document.getElementById("counterContainer").style.display = "flex";
             document.getElementById("header").style.display = "flex";
+            checkUsername(); // التحقق من اسم المستخدم
             startCountdown();
+            document.getElementById("statusIndicator").className = "status-indicator active"; // تعيين الحالة كفعلية عند بدء العد
+            document.getElementById("statusIndicator").innerText = "فعال";
         }
 
         let isSignUp = true;
@@ -413,7 +445,7 @@
                 
                 // حساب الوقت المنقضي
                 const timeElapsed = currentTime - lastExitTime;
-                countdown = (data.remainingTime || 86400) - timeElapsed; // طرح الوقت المنقضي من الوقت المتبقي
+                countdown = (data.remainingTime || defaultCountdown) - timeElapsed; // طرح الوقت المنقضي من الوقت المتبقي
                 
                 // إذا كان الوقت المتبقي أقل من صفر، اجعله صفر
                 if (countdown < 0) {
@@ -442,6 +474,8 @@
                 if (countdown <= 0) {
                     clearInterval(countdownInterval);
                     await handleCountdownEnd();
+                    document.getElementById("statusIndicator").className = "status-indicator inactive"; // تعيين الحالة كمتوقفة
+                    document.getElementById("statusIndicator").innerText = "متوقف";
                 }
             }, 1000);
         }
@@ -456,9 +490,39 @@
             document.getElementById("pointsBox").innerText = `النقاط: ${newPoints}`;
             notifications.push(`لقد تحصلت على ${totalCounterPoints} نقطة عن طريق العداد`);
             showNotificationIndicator();
-            document.getElementById("startButton").disabled = false;
-            document.getElementById("dynamicText").innerText = "تشغيل";
+
+            // إعادة تعيين العداد
+            countdown = defaultCountdown; // إعادة تعيين إلى 24 ساعة
+            document.getElementById("dynamicText").innerText = `انتظار ${formatTime(countdown)}`;
+
+            // إعادة تشغيل العداد
+            startCountdown();
+
+            document.getElementById("startButton").disabled = false; // تفعيل زر التشغيل مرة أخرى
             await database.ref('users/' + userId).update({ remainingTime: null }); // إعادة تعيين الوقت المتبقي في قاعدة البيانات
+        }
+
+        async function saveUsername() {
+            const usernameInput = document.getElementById("username").value;
+            if (usernameInput) {
+                await database.ref('users/' + userId).update({ username: usernameInput });
+                document.getElementById("usernameDisplay").innerText = `الاسم: ${usernameInput}`;
+                document.getElementById("username").style.display = "none"; // إخفاء حقل الإدخال
+                document.getElementById("saveUsernameButton").style.display = "none"; // إخفاء زر الحفظ
+            }
+        }
+
+        async function checkUsername() {
+            const userRef = database.ref('users/' + userId);
+            const snapshot = await userRef.once('value');
+            const data = snapshot.val();
+
+            if (data && data.username) {
+                document.getElementById("usernameDisplay").innerText = `الاسم: ${data.username}`;
+            } else {
+                document.getElementById("username").style.display = "block"; // عرض حقل الإدخال
+                document.getElementById("saveUsernameButton").style.display = "block"; // عرض زر الحفظ
+            }
         }
 
         function formatTime(seconds) {
@@ -473,6 +537,7 @@
                 database.ref('users/' + userId).once('value').then(snapshot => {
                     const data = snapshot.val();
                     document.getElementById("emailDisplay").innerText = data && data.email ? `البريد الإلكتروني: ${data.email}` : "البريد الإلكتروني: غير متاح";
+                    document.getElementById("usernameDisplay").innerText = data && data.username ? `الاسم: ${data.username}` : "الاسم: غير متاح";
                     document.getElementById("referralCodeDisplay").innerText = data && data.referralCode ? `رمز الإحالة: ${data.referralCode}` : "رمز الإحالة: غير متاح";
                 });
             }
