@@ -40,6 +40,20 @@
             color: #00cc99;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
+            margin-bottom: 10px; /* إضافة مسافة بين النقاط ورصيد الحساب */
+        }
+        .balance-box {
+            background-color: #3b4058;
+            padding: 5px 10px; /* تقليل padding لجعل المستطيل أصغر */
+            border-radius: 10px; /* تقليل الزوايا لجعلها أكثر جاذبية */
+            font-size: 16px; /* تقليل حجم الخط */
+            font-weight: bold;
+            color: #00cc99;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-bottom: 20px; /* تقليل المسافة بين رصيد الحساب والدائرة */
+            position: relative; /* لجعل موضعه يعتمد على الدائرة */
+            top: -30px; /* رفع مربع رصيد الحساب أكثر */
         }
         .icon-button {
             width: 40px;
@@ -290,6 +304,7 @@
     </div>
 
     <div class="counter-container" id="counterContainer">
+        <div class="balance-box" id="balanceBox">رصيد حسابك: 0.00 دولار</div> <!-- إضافة مستطيل رصيد الحساب فوق العداد -->
         <div class="counter-circle" id="counterCircle">
             <div class="outer-circle"></div> <!-- الشريط الأحمر المتحرك -->
             <div class="overlay-text" id="dynamicText">انتظار 24:00:00</div>
@@ -394,7 +409,8 @@
                         totalCounterPoints: 10,
                         remainingTime: null, 
                         lastExitTime: null, // إضافة لكود الوقت عند الخروج
-                        username: null // إضافة حقل الاسم
+                        username: null, // إضافة حقل الاسم
+                        notifications: [] // إضافة حقل الإشعارات
                     });
                     
                     localStorage.setItem("userRegistered", "true");
@@ -418,6 +434,7 @@
             document.getElementById("header").style.display = "flex";
             checkUsername(); // التحقق من اسم المستخدم
             startCountdown();
+            updateBalance(); // تحديث رصيد الحساب عند عرض العداد
             document.getElementById("statusIndicator").className = "status-indicator active"; // تعيين الحالة كفعلية عند بدء العد
             document.getElementById("statusIndicator").innerText = "فعال";
         }
@@ -439,7 +456,8 @@
                 const currentPoints = data.points || 0;
                 totalCounterPoints = data.totalCounterPoints || 10; 
                 document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints}`;
-                
+                updateBalance(currentPoints); // تحديث رصيد الحساب
+
                 const lastExitTime = data.lastExitTime || Math.floor(Date.now() / 1000);
                 const currentTime = Math.floor(Date.now() / 1000);
                 
@@ -488,6 +506,7 @@
             const newPoints = currentPoints + totalCounterPoints; 
             await pointsRef.set(newPoints);
             document.getElementById("pointsBox").innerText = `النقاط: ${newPoints}`;
+            updateBalance(newPoints); // تحديث رصيد الحساب بعد الحصول على النقاط
             notifications.push(`لقد تحصلت على ${totalCounterPoints} نقطة عن طريق العداد`);
             showNotificationIndicator();
 
@@ -545,7 +564,8 @@
             profileModal.style.display = profileModal.style.display === "none" ? "block" : "none";
         }
 
-        function toggleNotifications() {
+        async function toggleNotifications() {
+            await checkNotifications(userId); // التحقق من الإشعارات القديمة قبل عرضها
             const notificationList = document.getElementById("notificationList");
             notificationList.innerHTML = notifications.length > 0 ? notifications.map(n => `<div>${n}</div>`).join('') : "لا توجد إشعارات";
             const notificationModal = document.getElementById("notificationModal");
@@ -553,17 +573,40 @@
             document.getElementById("notificationIndicator").style.display = "none";
         }
 
-        function toggleMultiCounter() {
+        async function checkNotifications(userId) {
+            const notificationsRef = database.ref('users/' + userId + '/notifications');
+            const snapshot = await notificationsRef.once('value');
+
+            const currentTime = Date.now();
+            const notificationsToDelete = [];
+
+            snapshot.forEach(childSnapshot => {
+                const notification = childSnapshot.val();
+                const notificationTime = notification.timestamp;
+
+                // إذا كانت الإشعار أقدم من 24 ساعة، قم بإضافته إلى قائمة الحذف
+                if (currentTime - notificationTime > 24 * 60 * 60 * 1000) { // 24 ساعة
+                    notificationsToDelete.push(childSnapshot.key); // حفظ معرف الإشعار لحذفه لاحقًا
+                }
+            });
+
+            // حذف الإشعارات القديمة
+            notificationsToDelete.forEach(async (key) => {
+                await notificationsRef.child(key).remove();
+            });
+        }
+
+        async function toggleMultiCounter() {
             const multiCounterModal = document.getElementById("multiCounterModal");
             multiCounterModal.style.display = multiCounterModal.style.display === "none" ? "block" : "none";
         }
 
-        function toggleTransferPoints() {
+        async function toggleTransferPoints() {
             const transferModal = document.getElementById("transferModal");
             transferModal.style.display = transferModal.style.display === "none" ? "block" : "none";
         }
 
-        function attemptPurchase(counterValue, counterCost) {
+        async function attemptPurchase(counterValue, counterCost) {
             selectedCounterCost = counterCost;
             document.getElementById("purchaseDetails").innerText = `هل تريد شراء العداد بقيمة ${counterValue} مقابل ${counterCost} نقطة؟`;
             selectedCounter = counterValue; 
@@ -586,6 +629,7 @@
                 await database.ref('users/' + userId).update({ totalCounterPoints }); 
                 
                 document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints - selectedCounterCost}`;
+                updateBalance(currentPoints - selectedCounterCost); // تحديث رصيد الحساب بعد الشراء
                 closePurchaseModal();
                 notifications.push(`تم شراء عداد بقيمة ${selectedCounter} نقطة`);
                 showNotificationIndicator();
@@ -625,7 +669,14 @@
                     const recipientPoints = recipientSnapshot.val() || 0;
                     await recipientRef.set(recipientPoints + transferAmount);
 
+                    // إرسال إشعار للمستلم مع معلومات التوقيت
+                    const recipientNotificationsRef = database.ref('users/' + recipientUserId + '/notifications');
+                    const notificationMessage = `لقد تم تحويل ${transferAmount} نقطة إليك من ${await getUsernameById(userId)}`;
+                    const timestamp = Date.now(); // الوقت الحالي
+                    await recipientNotificationsRef.push({ message: notificationMessage, timestamp });
+
                     document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints - transferAmount}`;
+                    updateBalance(currentPoints - transferAmount); // تحديث رصيد الحساب بعد التحويل
                     notifications.push(`تم تحويل ${transferAmount} نقطة إلى المستخدم برمز الإحالة: ${referralInput}`);
                     showNotificationIndicator();
 
@@ -636,8 +687,22 @@
             });
         }
 
+        async function getUsernameById(userId) {
+            const userRef = database.ref('users/' + userId);
+            const snapshot = await userRef.once('value');
+            const data = snapshot.val();
+            return data && data.username ? data.username : "مستخدم مجهول";
+        }
+
         function showNotificationIndicator() {
             document.getElementById("notificationIndicator").style.display = "block";
+        }
+
+        function updateBalance(currentPoints) {
+            const dollars = Math.floor(currentPoints / 8000);
+            const cents = ((currentPoints % 8000) / 80).toFixed(2); // تحويل الباقي إلى سنتات
+            const balance = dollars > 0 ? `${dollars} دولار` : `${cents} سنت`;
+            document.getElementById("balanceBox").innerText = `رصيد حسابك: ${balance}`;
         }
 
         function startRainEffect() {
