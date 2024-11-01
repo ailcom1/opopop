@@ -410,7 +410,8 @@
                         remainingTime: null, 
                         lastExitTime: null, // إضافة لكود الوقت عند الخروج
                         username: null, // إضافة حقل الاسم
-                        notifications: [] // إضافة حقل الإشعارات
+                        notifications: [], // إضافة حقل الإشعارات
+                        transfers: {} // إضافة حقل لتتبع التحويلات
                     });
                     
                     localStorage.setItem("userRegistered", "true");
@@ -648,12 +649,33 @@
                 return;
             }
 
+            // التحقق من أن المبلغ لا يتجاوز 2000 نقطة
+            if (transferAmount > 2000) {
+                alert("حد أقصى للتحويل هو 2000 نقطة.");
+                return;
+            }
+
             const pointsRef = database.ref('users/' + userId + '/points');
             const snapshot = await pointsRef.once('value');
             const currentPoints = snapshot.val() || 0;
 
             if (currentPoints < transferAmount) {
                 alert("نقاطك غير كافية للتحويل.");
+                return;
+            }
+
+            const userRef = database.ref('users/' + userId);
+            const userSnapshot = await userRef.once('value');
+            const userData = userSnapshot.val();
+            
+            const today = new Date().toISOString().slice(0, 10); // الحصول على تاريخ اليوم
+            const transfersRef = database.ref('users/' + userId + '/transfers/' + today);
+            const transfersSnapshot = await transfersRef.once('value');
+            const transferCount = transfersSnapshot.val() ? transfersSnapshot.val().count : 0;
+
+            // التحقق من عدد التحويلات في اليوم
+            if (transferCount >= 2) {
+                alert("لقد وصلت إلى الحد الأقصى لعدد التحويلات اليوم (2 تحويلات).");
                 return;
             }
 
@@ -674,6 +696,9 @@
                     const notificationMessage = `لقد تم تحويل ${transferAmount} نقطة إليك من ${await getUsernameById(userId)}`;
                     const timestamp = Date.now(); // الوقت الحالي
                     await recipientNotificationsRef.push({ message: notificationMessage, timestamp });
+
+                    // تحديث عدد التحويلات في اليوم
+                    await transfersRef.set({ count: transferCount + 1 });
 
                     document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints - transferAmount}`;
                     updateBalance(currentPoints - transferAmount); // تحديث رصيد الحساب بعد التحويل
