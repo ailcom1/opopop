@@ -40,20 +40,20 @@
             color: #00cc99;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-bottom: 10px; /* إضافة مسافة بين النقاط ورصيد الحساب */
+            margin-bottom: 10px;
         }
         .balance-box {
             background-color: #3b4058;
-            padding: 5px 10px; /* تقليل padding لجعل المستطيل أصغر */
-            border-radius: 10px; /* تقليل الزوايا لجعلها أكثر جاذبية */
-            font-size: 16px; /* تقليل حجم الخط */
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: bold;
             color: #00cc99;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-bottom: 20px; /* تقليل المسافة بين رصيد الحساب والدائرة */
-            position: relative; /* لجعل موضعه يعتمد على الدائرة */
-            top: -30px; /* رفع مربع رصيد الحساب أكثر */
+            margin-bottom: 20px;
+            position: relative;
+            top: -30px;
         }
         .icon-button {
             width: 40px;
@@ -166,10 +166,10 @@
         }
         .status-indicator {
             position: absolute;
-            width: 220px; /* Width of the status indicator */
+            width: 220px;
             height: 30px;
             border-radius: 15px;
-            top: 10px; /* Position it above the circle */
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             color: white;
@@ -179,35 +179,33 @@
             font-weight: bold;
             font-size: 16px;
             opacity: 0.8;
-            transition: background-color 0.3s ease; /* Smooth transition for color change */
+            transition: background-color 0.3s ease;
         }
         .active {
-            background-color: rgba(0, 255, 0, 0.7); /* Green for active */
+            background-color: rgba(0, 255, 0, 0.7);
         }
         .inactive {
-            background-color: rgba(255, 0, 0, 0.7); /* Red for inactive */
+            background-color: rgba(255, 0, 0, 0.7);
         }
-        /* شريط أحمر متحرك */
         .outer-circle {
             position: absolute;
-            width: 260px; /* 10px أكبر من الدائرة الداخلية */
-            height: 260px; /* 10px أكبر من الدائرة الداخلية */
+            width: 260px;
+            height: 260px;
             border-radius: 50%;
-            border: 5px solid red; /* اللون الأحمر */
-            animation: rotate 5s linear infinite; /* دوران الشريط */
+            border: 5px solid red;
+            animation: rotate 10s linear infinite, glow 4s ease-in-out infinite;
             box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
         }
-        /* إطار ذهبي حول الدائرة */
         .outer-circle:before {
             content: '';
             position: absolute;
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 5px solid gold; /* اللون الذهبي */
+            border: 5px solid gold;
             top: 0;
             left: 0;
-            z-index: -1; /* خلف الشريط الأحمر */
+            z-index: -1;
         }
         @keyframes rotate {
             0% {
@@ -217,7 +215,14 @@
                 transform: rotate(360deg);
             }
         }
-        /* تأثير المطر */
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 255, 0, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 0, 0, 1), 0 0 30px rgba(255, 255, 0, 1);
+            }
+        }
         .rain-drop {
             position: absolute;
             top: -10px;
@@ -233,7 +238,6 @@
                 transform: translateY(300px);
             }
         }
-        /* إخفاء النوافذ */
         .profile-modal, .notification-modal, .multi-counter-modal, .purchase-modal, .transfer-modal {
             display: none;
             position: fixed;
@@ -304,11 +308,11 @@
     </div>
 
     <div class="counter-container" id="counterContainer">
-        <div class="balance-box" id="balanceBox">رصيد حسابك: 0.00 دولار</div> <!-- إضافة مستطيل رصيد الحساب فوق العداد -->
+        <div class="balance-box" id="balanceBox">رصيد حسابك: 0.00 دولار</div>
         <div class="counter-circle" id="counterCircle">
-            <div class="outer-circle"></div> <!-- الشريط الأحمر المتحرك -->
+            <div class="outer-circle"></div>
             <div class="overlay-text" id="dynamicText">انتظار 24:00:00</div>
-            <div id="statusIndicator" class="status-indicator active">فعال</div> <!-- مستطيل الحالة -->
+            <div id="statusIndicator" class="status-indicator active">فعال</div>
         </div>
         <input type="text" id="username" placeholder="أدخل اسمك" style="display: none;">
         <button class="button" id="saveUsernameButton" onclick="saveUsername()" style="display: none;">حفظ الاسم</button>
@@ -317,7 +321,6 @@
         <button class="button" onclick="toggleTransferPoints()">تحويل النقاط</button>
     </div>
 
-    <!-- نافذة البروفايل -->
     <div class="profile-modal" id="profileModal">
         <h3>البروفايل</h3>
         <div id="emailDisplay" class="profile-info-box">البريد الإلكتروني: غير متاح</div>
@@ -326,14 +329,12 @@
         <button class="close-modal" onclick="toggleProfile()">إغلاق</button>
     </div>
 
-    <!-- نافذة الإشعارات -->
     <div class="notification-modal" id="notificationModal">
         <h3>الإشعارات</h3>
         <div id="notificationList" class="profile-info-box">لا توجد إشعارات</div>
         <button class="close-modal" onclick="toggleNotifications()">إغلاق</button>
     </div>
 
-    <!-- نافذة مضاعفة العداد -->
     <div class="multi-counter-modal" id="multiCounterModal">
         <h3>مجموعة العدادات</h3>
         <div class="multi-counter-circle" onclick="attemptPurchase(500, 80000)">500 نقطة</div>
@@ -343,7 +344,6 @@
         <button class="close-modal" onclick="toggleMultiCounter()">إغلاق</button>
     </div>
 
-    <!-- نافذة تحويل النقاط -->
     <div class="transfer-modal" id="transferModal">
         <h3>تحويل النقاط</h3>
         <input type="text" id="referralInput" placeholder="أدخل رمز الإحالة للمستلم">
@@ -352,7 +352,6 @@
         <button class="close-modal" onclick="toggleTransferPoints()">إغلاق</button>
     </div>
 
-    <!-- نافذة تأكيد الشراء -->
     <div class="purchase-modal" id="purchaseModal">
         <h3>هل تريد شراء العداد؟</h3>
         <p id="purchaseDetails"></p>
@@ -408,15 +407,12 @@
                         referralCode: referralCode,
                         totalCounterPoints: 10,
                         remainingTime: null, 
-                        lastExitTime: null, // إضافة لكود الوقت عند الخروج
-                        username: null, // إضافة حقل الاسم
-                        notifications: [], // إضافة حقل الإشعارات
-                        transfers: {} // إضافة حقل لتتبع التحويلات
+                        lastExitTime: firebase.database.ServerValue.TIMESTAMP,
+                        username: null,
+                        notifications: [],
+                        transfers: {}
                     });
                     
-                    localStorage.setItem("userRegistered", "true");
-                    localStorage.setItem("userId", userId);
-
                     showCounter();
                 } else {
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
@@ -433,11 +429,8 @@
             document.getElementById("authContainer").style.display = "none";
             document.getElementById("counterContainer").style.display = "flex";
             document.getElementById("header").style.display = "flex";
-            checkUsername(); // التحقق من اسم المستخدم
-            startCountdown();
-            updateBalance(); // تحديث رصيد الحساب عند عرض العداد
-            document.getElementById("statusIndicator").className = "status-indicator active"; // تعيين الحالة كفعلية عند بدء العد
-            document.getElementById("statusIndicator").innerText = "فعال";
+            checkUsername(); 
+            loadUserPointsAndCounter(); 
         }
 
         let isSignUp = true;
@@ -457,16 +450,14 @@
                 const currentPoints = data.points || 0;
                 totalCounterPoints = data.totalCounterPoints || 10; 
                 document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints}`;
-                updateBalance(currentPoints); // تحديث رصيد الحساب
+                updateBalance(currentPoints); 
 
-                const lastExitTime = data.lastExitTime || Math.floor(Date.now() / 1000);
-                const currentTime = Math.floor(Date.now() / 1000);
+                const lastExitTime = data.lastExitTime || Date.now(); 
+                const currentTime = Date.now();
                 
-                // حساب الوقت المنقضي
-                const timeElapsed = currentTime - lastExitTime;
-                countdown = (data.remainingTime || defaultCountdown) - timeElapsed; // طرح الوقت المنقضي من الوقت المتبقي
+                const timeElapsed = Math.floor((currentTime - lastExitTime) / 1000); 
+                countdown = (data.remainingTime || defaultCountdown) - timeElapsed; 
                 
-                // إذا كان الوقت المتبقي أقل من صفر، اجعله صفر
                 if (countdown < 0) {
                     countdown = 0;
                 }
@@ -479,24 +470,23 @@
             const startButton = document.getElementById("startButton");
             startButton.disabled = true;
 
-            if (countdownInterval) {
-                clearInterval(countdownInterval); // إيقاف العداد السابق إذا كان موجودًا
-            }
-
-            countdownInterval = setInterval(async () => {
+            const countdownFunction = async () => {
                 if (countdown > 0) {
                     countdown--;
                     document.getElementById("dynamicText").innerText = `انتظار ${formatTime(countdown)}`;
-                    await database.ref('users/' + userId).update({ remainingTime: countdown, lastExitTime: Math.floor(Date.now() / 1000) }); // تحديث الوقت المتبقي ووقت الخروج
-                }
-
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
+                    await database.ref('users/' + userId).update({ 
+                        remainingTime: countdown, 
+                        lastExitTime: firebase.database.ServerValue.TIMESTAMP 
+                    });
+                    setTimeout(countdownFunction, 1000);
+                } else {
                     await handleCountdownEnd();
-                    document.getElementById("statusIndicator").className = "status-indicator inactive"; // تعيين الحالة كمتوقفة
+                    document.getElementById("statusIndicator").className = "status-indicator inactive"; 
                     document.getElementById("statusIndicator").innerText = "متوقف";
                 }
-            }, 1000);
+            };
+
+            countdownFunction(); 
         }
 
         async function handleCountdownEnd() {
@@ -507,19 +497,17 @@
             const newPoints = currentPoints + totalCounterPoints; 
             await pointsRef.set(newPoints);
             document.getElementById("pointsBox").innerText = `النقاط: ${newPoints}`;
-            updateBalance(newPoints); // تحديث رصيد الحساب بعد الحصول على النقاط
+            updateBalance(newPoints); 
             notifications.push(`لقد تحصلت على ${totalCounterPoints} نقطة عن طريق العداد`);
             showNotificationIndicator();
 
-            // إعادة تعيين العداد
-            countdown = defaultCountdown; // إعادة تعيين إلى 24 ساعة
+            countdown = defaultCountdown; 
             document.getElementById("dynamicText").innerText = `انتظار ${formatTime(countdown)}`;
 
-            // إعادة تشغيل العداد
             startCountdown();
 
-            document.getElementById("startButton").disabled = false; // تفعيل زر التشغيل مرة أخرى
-            await database.ref('users/' + userId).update({ remainingTime: null }); // إعادة تعيين الوقت المتبقي في قاعدة البيانات
+            document.getElementById("startButton").disabled = false; 
+            await database.ref('users/' + userId).update({ remainingTime: null }); 
         }
 
         async function saveUsername() {
@@ -527,8 +515,8 @@
             if (usernameInput) {
                 await database.ref('users/' + userId).update({ username: usernameInput });
                 document.getElementById("usernameDisplay").innerText = `الاسم: ${usernameInput}`;
-                document.getElementById("username").style.display = "none"; // إخفاء حقل الإدخال
-                document.getElementById("saveUsernameButton").style.display = "none"; // إخفاء زر الحفظ
+                document.getElementById("username").style.display = "none"; 
+                document.getElementById("saveUsernameButton").style.display = "none"; 
             }
         }
 
@@ -540,8 +528,8 @@
             if (data && data.username) {
                 document.getElementById("usernameDisplay").innerText = `الاسم: ${data.username}`;
             } else {
-                document.getElementById("username").style.display = "block"; // عرض حقل الإدخال
-                document.getElementById("saveUsernameButton").style.display = "block"; // عرض زر الحفظ
+                document.getElementById("username").style.display = "block"; 
+                document.getElementById("saveUsernameButton").style.display = "block"; 
             }
         }
 
@@ -566,7 +554,7 @@
         }
 
         async function toggleNotifications() {
-            await checkNotifications(userId); // التحقق من الإشعارات القديمة قبل عرضها
+            await checkNotifications(userId); 
             const notificationList = document.getElementById("notificationList");
             notificationList.innerHTML = notifications.length > 0 ? notifications.map(n => `<div>${n}</div>`).join('') : "لا توجد إشعارات";
             const notificationModal = document.getElementById("notificationModal");
@@ -585,13 +573,11 @@
                 const notification = childSnapshot.val();
                 const notificationTime = notification.timestamp;
 
-                // إذا كانت الإشعار أقدم من 24 ساعة، قم بإضافته إلى قائمة الحذف
-                if (currentTime - notificationTime > 24 * 60 * 60 * 1000) { // 24 ساعة
-                    notificationsToDelete.push(childSnapshot.key); // حفظ معرف الإشعار لحذفه لاحقًا
+                if (currentTime - notificationTime > 24 * 60 * 60 * 1000) { 
+                    notificationsToDelete.push(childSnapshot.key); 
                 }
             });
 
-            // حذف الإشعارات القديمة
             notificationsToDelete.forEach(async (key) => {
                 await notificationsRef.child(key).remove();
             });
@@ -630,7 +616,7 @@
                 await database.ref('users/' + userId).update({ totalCounterPoints }); 
                 
                 document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints - selectedCounterCost}`;
-                updateBalance(currentPoints - selectedCounterCost); // تحديث رصيد الحساب بعد الشراء
+                updateBalance(currentPoints - selectedCounterCost); 
                 closePurchaseModal();
                 notifications.push(`تم شراء عداد بقيمة ${selectedCounter} نقطة`);
                 showNotificationIndicator();
@@ -649,7 +635,6 @@
                 return;
             }
 
-            // التحقق من أن المبلغ لا يتجاوز 2000 نقطة
             if (transferAmount > 2000) {
                 alert("حد أقصى للتحويل هو 2000 نقطة.");
                 return;
@@ -668,12 +653,11 @@
             const userSnapshot = await userRef.once('value');
             const userData = userSnapshot.val();
             
-            const today = new Date().toISOString().slice(0, 10); // الحصول على تاريخ اليوم
+            const today = new Date().toISOString().slice(0, 10); 
             const transfersRef = database.ref('users/' + userId + '/transfers/' + today);
             const transfersSnapshot = await transfersRef.once('value');
             const transferCount = transfersSnapshot.val() ? transfersSnapshot.val().count : 0;
 
-            // التحقق من عدد التحويلات في اليوم
             if (transferCount >= 2) {
                 alert("لقد وصلت إلى الحد الأقصى لعدد التحويلات اليوم (2 تحويلات).");
                 return;
@@ -691,17 +675,15 @@
                     const recipientPoints = recipientSnapshot.val() || 0;
                     await recipientRef.set(recipientPoints + transferAmount);
 
-                    // إرسال إشعار للمستلم مع معلومات التوقيت
                     const recipientNotificationsRef = database.ref('users/' + recipientUserId + '/notifications');
                     const notificationMessage = `لقد تم تحويل ${transferAmount} نقطة إليك من ${await getUsernameById(userId)}`;
-                    const timestamp = Date.now(); // الوقت الحالي
+                    const timestamp = Date.now(); 
                     await recipientNotificationsRef.push({ message: notificationMessage, timestamp });
 
-                    // تحديث عدد التحويلات في اليوم
                     await transfersRef.set({ count: transferCount + 1 });
 
                     document.getElementById("pointsBox").innerText = `النقاط: ${currentPoints - transferAmount}`;
-                    updateBalance(currentPoints - transferAmount); // تحديث رصيد الحساب بعد التحويل
+                    updateBalance(currentPoints - transferAmount); 
                     notifications.push(`تم تحويل ${transferAmount} نقطة إلى المستخدم برمز الإحالة: ${referralInput}`);
                     showNotificationIndicator();
 
@@ -725,7 +707,7 @@
 
         function updateBalance(currentPoints) {
             const dollars = Math.floor(currentPoints / 8000);
-            const cents = ((currentPoints % 8000) / 80).toFixed(2); // تحويل الباقي إلى سنتات
+            const cents = ((currentPoints % 8000) / 80).toFixed(2); 
             const balance = dollars > 0 ? `${dollars} دولار` : `${cents} سنت`;
             document.getElementById("balanceBox").innerText = `رصيد حسابك: ${balance}`;
         }
@@ -751,18 +733,20 @@
         }
 
         window.onload = function() {
-            if (localStorage.getItem("userRegistered") === "true") {
-                userId = localStorage.getItem("userId");
-                loadUserPointsAndCounter();
-                showCounter();
-                startRainEffect(); // بداية تأثير المطر عند تحميل الصفحة
-            } else {
-                document.getElementById("authContainer").style.display = "flex";
-            }
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    userId = user.uid;
+                    loadUserPointsAndCounter();
+                    showCounter();
+                    startRainEffect(); 
+                } else {
+                    document.getElementById("authContainer").style.display = "flex";
+                }
+            });
         }
 
         window.onbeforeunload = function() {
-            const currentTime = Math.floor(Date.now() / 1000); // الوقت الحالي بالثواني
+            const currentTime = Math.floor(Date.now() / 1000); 
             database.ref('users/' + userId).update({ lastExitTime: currentTime });
         };
     </script>
