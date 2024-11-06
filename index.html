@@ -1,4 +1,603 @@
-سيتم اطلاق تحديث جديد. في ساعات قادمه. وسيتم تعويض جميع مستخدين على نقاط او اي تاخير
-انضم الى قناه لمعرفه  احداث. 
-https://t.me/snatat79 
-على تلكرام 
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1.0">
+    <title>تجربة حواف الدائرة بتأثيرات دوران وتوهج</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e2a38;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            background-color: rgba(30, 42, 56, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #f1c40f;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-field {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #f1c40f;
+            font-size: 16px;
+            text-align: center;
+            margin: 10px 0;
+            background-color: #3b4058;
+            color: #ffffff;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #00cc99;
+            outline: none;
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-top: 40px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* واجهة العداد */
+        #counterContainer {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: #1e2a38;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .points-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #3b4058;
+            color: #00cc99;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .profile-button, .notification-button {
+            position: fixed;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #3b4058;
+            border: 2px solid gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00cc99;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            z-index: 10;
+        }
+
+        .profile-button {
+            right: 10px;
+        }
+
+        .notification-button {
+            left: 10px;
+        }
+
+        .profile-button:hover, .notification-button:hover {
+            background-color: #2a3949;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+
+        .circle-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .outer-ring {
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ff6b6b, #50a2a7, #7fd6b9, #50a2a7, #ff6b6b);
+            animation: rotate 10s linear infinite, glow 4s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(127, 214, 185, 0.3), 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .inner-circle {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: black;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* التأثيرات */
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 60px rgba(255, 255, 255, 1); }
+        }
+
+        /* تصميم واجهة العدادات المنبثقة */
+        .popup {
+            display: none; /* مخفي بشكل افتراضي */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            background-color: rgba(30, 42, 56, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 20;
+            padding: 20px;
+        }
+
+        .popup h2 {
+            text-align: center;
+            color: #f1c40f;
+            margin-bottom: 20px;
+        }
+
+        .counter {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+
+        .counter-item {
+            background-color: #3b4058;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            width: 100px;
+            border: 2px solid gold;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .counter-item:hover {
+            background-color: #2a3949;
+        }
+
+        .close-popup {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .close-popup:hover {
+            background-color: #0056b3;
+        }
+
+        /* زر تحويل الأموال */
+        .money-button {
+            width: 60px;
+            height: 60px;
+            background-color: #3b4058;
+            border: 2px solid gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00cc99;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .money-button:hover {
+            background-color: #2a3949;
+            transform: translateY(-3px);
+        }
+
+        /* زر زائد */
+        .add-button {
+            width: 60px;
+            height: 60px;
+            background-color: #3b4058;
+            border: 2px solid gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00cc99;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .add-button:hover {
+            background-color: #2a3949;
+            transform: translateY(-3px);
+        }
+
+        /* زر تحويل النقاط */
+        .convert-button {
+            width: 60px;
+            height: 60px;
+            background-color: #3b4058;
+            border: 2px solid gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00cc99;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .convert-button:hover {
+            background-color: #2a3949;
+            transform: translateY(-3px);
+        }
+
+        /* حاوية الأزرار */
+        .button-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%; /* محاذاة إلى المنتصف */
+            transform: translateX(-50%); /* تحريكها إلى المنتصف */
+            display: flex;
+            justify-content: space-between; /* توزيع الأزرار بشكل متساوٍ */
+            width: 200px; /* عرض الحاوية */
+        }
+
+        .money-button, .add-button, .convert-button {
+            flex: 1; /* يجعل الأزرار تأخذ مساحة متساوية */
+            margin: 0 5px; /* هامش بين الأزرار */
+        }
+    </style>
+</head>
+<body>
+    <!-- إعدادات Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+        import { getDatabase, ref, set, update, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        // إعداد Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4qeIXomPGC5WIRhG63n2Rfo1mx5vNXVA",
+            authDomain: "ajjad-moayad-new-update.firebaseapp.com",
+            databaseURL: "https://ajjad-moayad-new-update-default-rtdb.firebaseio.com",
+            projectId: "ajjad-moayad-new-update",
+            storageBucket: "ajjad-moayad-new-update.firebasestorage.app",
+            messagingSenderId: "55206297868",
+            appId: "1:55206297868:web:4d8dfd6807765d25c80929",
+            measurementId: "G-JJT3HVNP34"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        // دالة لتحميل النقاط من قاعدة البيانات
+        function loadPoints() {
+            const username = localStorage.getItem("currentUser");
+            const userRef = ref(database, 'users/' + username);
+
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const points = snapshot.val().points || 0;
+                    document.getElementById("points").textContent = points;
+                }
+            }).catch((error) => {
+                console.error("خطأ في جلب بيانات المستخدم: ", error);
+            });
+        }
+
+        // دالة لتحميل الوقت المتبقي
+        window.loadRemainingTime = function() {
+            const endTime = localStorage.getItem("endTime");
+            if (endTime) {
+                const timeLeft = Math.floor((endTime - Date.now()) / 1000); // احسب الوقت المتبقي
+                if (timeLeft > 0) {
+                    startCountdown(timeLeft); // ابدأ العد التنازلي إذا كان هناك وقت متبقي
+                } else {
+                    // إذا انتهى الوقت، أعد تعيين الوقت
+                    document.getElementById("startButton").textContent = "انتهى!";
+                    localStorage.removeItem("endTime"); // إزالة الوقت النهائي من localStorage
+                    addPoints(50); // إضافة نقاط عند انتهاء العد
+                }
+            } else {
+                // إذا لم يكن هناك وقت، ابدأ من 24 ساعة
+                startCountdown(86400); // بدء العد من 24 ساعة (86400 ثانية)
+            }
+        };
+
+        // دالة لإنشاء حساب
+        window.createAccount = function() {
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            if (username && email && password) {
+                set(ref(database, 'users/' + username), {
+                    username: username,
+                    email: email,
+                    password: password,
+                    points: 0,
+                    counter: 0,
+                    remainingTime: 86400 // بدء العد من 24 ساعة (86400 ثانية)
+                })
+                .then(() => {
+                    console.log("تم إنشاء الحساب بنجاح!");
+                    localStorage.setItem("isUserCreated", "true");
+                    localStorage.setItem("currentUser", username);
+                    showCounter();
+                    loadPoints();
+                    loadRemainingTime(); // تحميل الوقت المتبقي بعد إنشاء الحساب
+                })
+                .catch((error) => {
+                    console.error("خطأ في إنشاء الحساب: ", error);
+                });
+            } else {
+                alert("يرجى ملء جميع الحقول المطلوبة.");
+            }
+        };
+
+        // دالة لبدء العد التنازلي
+        function startCountdown(remainingTime) {
+            const endTime = Date.now() + remainingTime * 1000; // احسب الوقت النهائي
+            localStorage.setItem("endTime", endTime); // حفظ الوقت النهائي في localStorage
+
+            let timeLeft = remainingTime;
+            const startButton = document.getElementById("startButton");
+            startButton.disabled = true; // تعطيل الزر أثناء العد
+            updateButtonDisplay(startButton, timeLeft);
+
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                updateButtonDisplay(startButton, timeLeft);
+
+                // عند انتهاء الوقت
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    startButton.textContent = "انتهى!";
+                    startButton.disabled = false; // تمكين الزر مرة أخرى
+                    addPoints(50); // إضافة نقاط عند انتهاء العد
+                    localStorage.removeItem("endTime"); // إزالة الوقت النهائي من localStorage
+                }
+            }, 1000);
+        }
+
+        // تحديث عرض الزر ليظهر الوقت المتبقي
+        function updateButtonDisplay(button, timeLeft) {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            button.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // دالة إضافة النقاط إلى المستخدم
+        function addPoints(points) {
+            const username = localStorage.getItem("currentUser");
+            const userRef = ref(database, 'users/' + username);
+
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const currentPoints = snapshot.val().points || 0;
+                    const newPoints = currentPoints + points;
+
+                    update(userRef, { points: newPoints }).then(() => {
+                        const pointsDisplay = document.getElementById("points");
+                        pointsDisplay.textContent = newPoints; // تحديث عرض النقاط
+                    }).catch((error) => {
+                        console.error("خطأ في تحديث النقاط: ", error);
+                    });
+                }
+            }).catch((error) => {
+                console.error("خطأ في جلب بيانات المستخدم: ", error);
+            });
+        }
+
+        // دالة لإظهار واجهة شراء العدادات
+        function showPurchasePopup(counterName, price) {
+            const purchaseMessage = document.getElementById("purchaseMessage");
+            purchaseMessage.textContent = `هل تريد شراء ${counterName} بسعر ${price} نقطة؟`;
+            document.getElementById("purchasePopup").style.display = "block";
+
+            // عند الضغط على زر تأكيد الشراء
+            document.getElementById("confirmPurchase").onclick = function() {
+                confirmPurchase(counterName, price);
+            };
+        }
+
+        function confirmPurchase(counterName, price) {
+            const username = localStorage.getItem("currentUser");
+            const userRef = ref(database, 'users/' + username);
+
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const currentPoints = snapshot.val().points || 0;
+
+                    if (currentPoints >= price) {
+                        // خصم النقاط من المستخدم
+                        const newPoints = currentPoints - price;
+                        update(userRef, { points: newPoints }).then(() => {
+                            alert(`تم شراء ${counterName} بنجاح!`);
+                            document.getElementById("points").textContent = newPoints; // تحديث عرض النقاط
+                            closePopup(); // أغلق واجهة تأكيد الشراء
+                        }).catch((error) => {
+                            console.error("خطأ في تحديث النقاط: ", error);
+                        });
+                    } else {
+                        alert("ليس لديك ما يكفي من النقاط لشراء هذا العداد.");
+                    }
+                }
+            }).catch((error) => {
+                console.error("خطأ في جلب بيانات المستخدم: ", error);
+            });
+        }
+
+        function closePopup() {
+            document.getElementById("purchasePopup").style.display = "none";
+        }
+
+        // دالة لإظهار واجهة التسجيل أو العد
+        window.onload = function() {
+            const isUserCreated = localStorage.getItem("isUserCreated");
+            if (isUserCreated === "true") {
+                showCounter();
+                loadPoints();
+                loadRemainingTime(); // تحميل الوقت المتبقي عند العودة
+            } else {
+                showSignup();
+            }
+        };
+
+        function showSignup() {
+            document.getElementById("signupContainer").style.display = "flex";
+            document.getElementById("counterContainer").style.display = "none";
+        }
+
+        function showCounter() {
+            document.getElementById("signupContainer").style.display = "none";
+            document.getElementById("counterContainer").style.display = "flex";
+        }
+    </script>
+
+    <!-- واجهة التسجيل -->
+    <div class="container" id="signupContainer">
+        <h1>إنشاء حساب</h1>
+        <input type="text" class="input-field" id="username" placeholder="اسم المستخدم" required>
+        <input type="email" class="input-field" id="email" placeholder="البريد الإلكتروني" required>
+        <input type="password" class="input-field" id="password" placeholder="كلمة المرور" required>
+        <button class="button" onclick="createAccount()">إنشاء حساب</button>
+    </div>
+
+    <!-- واجهة العداد -->
+    <div id="counterContainer">
+        <div class="points-box">النقاط: <span id="points">0</span></div>
+        
+        <div class="notification-button" onclick="window.location.href='notifications.html'">
+            <i class="fas fa-bell"></i>
+        </div>
+        
+        <div class="profile-button" onclick="window.location.href='profile.html'">
+            <i class="fas fa-user"></i>
+        </div>
+
+        <div class="circle-container">
+            <div class="outer-ring"></div>
+            <div class="inner-circle"></div>
+            <div class="small-ball ball1"></div>
+            <div class="small-ball ball2"></div>
+            <div class="small-ball ball3"></div>
+            <div class="small-ball ball4"></div>
+        </div>
+
+        <button class="button" id="startButton" onclick="loadRemainingTime()">تشغيل العداد</button>
+
+        <!-- حاوية الأزرار -->
+        <div class="button-container">
+            <button class="convert-button" onclick="window.location.href='buy-counters.html'">
+                <i class="fas fa-exchange-alt"></i>
+            </button>
+
+            <button class="money-button" onclick="window.location.href='money-transfer.html'">
+                <i class="fas fa-money-bill-wave"></i>
+            </button>
+
+            <!-- زر زائد -->
+            <button class="add-button" onclick="showAddCounterPopup()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+        <!-- واجهة العدادات المنبثقة -->
+        <div class="popup" id="popup" style="display:none;">
+            <h2>اختر العداد</h2>
+            <div class="counter">
+                <div class="counter-item" onclick="showPurchasePopup('عداد 500', 80000)">عداد 500<br><span>80,000 نقطة</span></div>
+                <div class="counter-item" onclick="showPurchasePopup('عداد 1000', 160000)">عداد 1000<br><span>160,000 نقطة</span></div>
+            </div>
+            <button class="close-popup" onclick="closePopup()">إغلاق</button>
+        </div>
+
+        <!-- واجهة تأكيد الشراء -->
+        <div class="popup" id="purchasePopup" style="display:none;">
+            <h2>تأكيد الشراء</h2>
+            <div class="popup-message" id="purchaseMessage"></div>
+            <button id="confirmPurchase" class="close-popup">نعم</button>
+            <button id="cancelPurchase" class="close-popup" onclick="closePopup()">لا</button>
+        </div>
+    </div>
+
+    <script>
+        function showAddCounterPopup() {
+            document.getElementById("popup").style.display = "block"; // إظهار واجهة اختيار العدادات
+        }
+    </script>
+</body>
+</html>
+
